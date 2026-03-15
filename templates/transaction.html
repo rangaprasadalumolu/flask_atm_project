@@ -1,0 +1,36 @@
+{% extends "welcome.html" %}
+
+{% block title %}Transaction History{% endblock %}
+
+{% block content %}
+
+<h2>Transaction History</h2>
+
+<table border="1" style="margin:auto; border-collapse:collapse; width:90%;">
+<tr style="background:#1e5799;color:white;">
+<th>Date</th>
+<th>Type</th>
+<th>Amount</th>
+<th>Balance</th>
+</tr>
+
+{% for t in transactions %}
+
+<tr>
+<td>{{ t[0] }}</td>
+<td>{{ t[1] }}</td>
+<td>Rs {{ t[2] }}</td>
+<td>Rs {{ t[3] }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+<br>
+
+<form action="/homepage">
+<button>Back to Menu</button>
+</form>
+
+{% endblock %}

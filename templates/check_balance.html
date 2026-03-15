@@ -1,0 +1,19 @@
+{% extends "welcome.html" %}
+
+{% block title %}Check Balance{% endblock %}
+
+{% block content %}
+
+<h2>Account Balance</h2>
+
+<h3>Hello {{name}}</h3>
+<br>
+<h3 style="color: rgba(0, 0, 255, 0.837);">Available Balance:</h3>
+<h1 style="color:green">Rs {{balance}}</h1>
+<br>
+
+<form action="/homepage">
+<button>Back to Menu</button>
+</form>
+
+{% endblock %}

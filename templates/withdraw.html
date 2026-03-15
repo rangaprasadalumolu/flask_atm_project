@@ -1,0 +1,28 @@
+{% extends "welcome.html" %}
+
+{% block title %}Withdraw Money{% endblock %}
+
+{% block content %}
+
+<h2>Withdraw Cash</h2>
+
+<p>Enter the amount you want to withdraw</p>
+
+<form action="/withdraw" method="post">
+
+<input type="number" name="amount" placeholder="Enter amount" min="1" required><br>
+<button type="submit">Withdraw</button>
+
+</form><br>
+
+<div class="error">
+{{ message }}
+</div>
+
+<br>
+
+<form action="/homepage">
+<button>Back to Menu</button>
+</form>
+
+{% endblock %}

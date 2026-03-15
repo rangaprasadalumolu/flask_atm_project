@@ -1,0 +1,35 @@
+{% extends "welcome.html" %}
+
+{% block title %}Change PIN{% endblock %}
+
+{% block content %}
+
+<h2>Change Your ATM PIN</h2>
+
+<p>Enter your current PIN and new PIN</p>
+
+<form action="/update_pin" method="post">
+
+<input type="password" name="old_pin" placeholder="Current PIN" maxlength="4" pattern="[0-9]{4}" required><br>
+
+<input type="password" name="new_pin" placeholder="New PIN" maxlength="4" pattern="[0-9]{4}" required><br>
+
+<input type="password" name="confirm_pin" placeholder="Confirm New PIN" maxlength="4" pattern="[0-9]{4}" required><br>
+
+<button type="submit">Update PIN</button>
+
+</form>
+
+<br>
+
+<div class="error">
+{{ message }}
+</div>
+
+<br>
+
+<form action="/homepage">
+<button>Back to Menu</button>
+</form>
+
+{% endblock %}

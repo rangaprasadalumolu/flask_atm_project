@@ -1,0 +1,29 @@
+{% extends "welcome.html" %}
+
+{% block title %}Deposit Money{% endblock %}
+
+{% block content %}
+
+<h2>Deposit Funds</h2>
+
+<p>Enter the amount you want to deposit</p>
+
+<form action="/deposit" method="post">
+
+<input type="number" name="amount" placeholder="Enter amount" min="1" required>
+
+<button type="submit">Deposit</button>
+
+</form>
+<br>
+
+<div class="error">
+{{ message }}
+</div>
+<br>
+
+<form action="/homepage">
+<button>Back to Menu</button>
+</form>
+
+{% endblock %}

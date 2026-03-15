@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{% block title %}ATM System{% endblock %}</title>
+
+<style>
+
+body{
+font-family: Arial, Helvetica, sans-serif;
+background: linear-gradient(135deg,#1e5799,#2989d8,#207cca);
+height:100vh;
+margin:0;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.container{
+background:white;
+padding:40px;
+border-radius:10px;
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
+width:400px;
+text-align:center;
+}
+
+h1,h2{
+color:#1e5799;
+}
+
+input{
+width:80%;
+padding:10px;
+margin-top:10px;
+border:1px solid #ccc;
+border-radius:5px;
+font-size:16px;
+}
+
+button{
+padding:10px 20px;
+margin-top:15px;
+border:none;
+border-radius:5px;
+background:#1e5799;
+color:white;
+font-size:16px;
+cursor:pointer;
+}
+
+button:hover{
+background:#0d3c78;
+}
+
+.menu button{
+width:80%;
+margin:8px auto;
+display:block;
+}
+
+.error{
+color:red;
+margin-top:10px;
+}
+
+.balance{
+font-size:28px;
+color:green;
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+{% block content %}
+
+<h1>Welcome to ATM</h1>
+
+<form action="/account">
+<button type="submit">Proceed</button>
+</form>
+
+{% endblock %}
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+{% extends "welcome.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<h2>Welcome {{name}}</h2>
+
+<p>Select a transaction</p>
+
+<div class="menu">
+
+<form action="/check_balance">
+<button>Check Balance</button>
+</form>
+
+<form action="/deposit">
+<button>Deposit</button>
+</form>
+
+<form action="/withdraw">
+<button>Withdraw</button>
+</form>
+
+<form action="/transaction">
+<button>Transaction History</button>
+</form>
+
+<form action="/update_pin">
+<button>Change PIN</button>
+</form>
+
+<form action="/cancel">
+<button style="background:#cc0000;">Logout</button>
+</form>
+
+</div>
+
+{% endblock %}
