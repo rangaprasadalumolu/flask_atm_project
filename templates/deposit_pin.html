@@ -1,0 +1,25 @@
+{% extends "welcome.html" %}
+
+{% block title %}Verify PIN{% endblock %}
+
+{% block content %}
+
+<h2>Confirm Deposit</h2>
+
+<p>Please enter your ATM PIN</p>
+
+<form action="/confirm_deposit" method="post">
+
+<input type="password" name="pin" placeholder="Enter PIN" maxlength="4" pattern="[0-9]{4}" required><br>
+
+<button type="submit">Confirm Deposit</button>
+
+</form>
+
+<br>
+
+<div class="error">
+{{ message }}
+</div>
+
+{% endblock %}

@@ -72,48 +72,94 @@ def return_home():
 def deposit():
     if request.method == "POST":
         amount = int(request.form["amount"])
-        ac_no = session.get("ac_no")
 
-        cursor.execute("update users_data set balance = balance + %s where ac_no = %s",(amount, ac_no))
+        # store amount temporarily
+        session["deposit_amount"] = amount
 
-        connect_db.commit()
-        cursor.execute("select balance from users_data where ac_no=%s",(ac_no,))
-
-        balance = cursor.fetchone()[0]
-
-        cursor.execute("insert into transactions(ac_no,type,amount,balance) values(%s,%s,%s,%s)",(ac_no,"Deposit",amount,balance))
-
-        connect_db.commit()
-
-        return render_template("deposit.html", message="Amount deposited successfully!")
+        # go to PIN page instead of depositing directly
+        return render_template("deposit_pin.html", message="")
 
     return render_template("deposit.html", message="")
 
-@app.route("/withdraw", methods=["GET", "POST"])
+@app.route("/confirm_deposit", methods=["POST"])
+def confirm_deposit():
+    pin = request.form["pin"]
+    ac_no = session.get("ac_no")
+    amount = session.get("deposit_amount")
+
+    cursor.execute("select pin, balance from users_data where ac_no=%s", (ac_no,))
+    res = cursor.fetchone()
+
+    if res:
+        db_pin = str(res[0])
+        balance = res[1]
+
+        # check wrong pin
+        if pin != db_pin:
+            return render_template("deposit.html", message="Incorrect PIN")
+
+        new_balance = balance + amount
+
+        # update balance
+        cursor.execute("update users_data set balance=%s where ac_no=%s",(new_balance, ac_no))
+        connect_db.commit()
+
+        # store transaction
+        cursor.execute("insert into transactions(ac_no,type,amount,balance) values(%s,%s,%s,%s)",(ac_no, "Deposit", amount, new_balance))
+        connect_db.commit()
+
+        return render_template("deposit.html", message="Deposit successful!")
+
+    return render_template("deposit.html", message="Something went wrong")
+
+@app.route("/withdraw", methods=["GET","POST"])
 def withdraw():
+
     if request.method == "POST":
+
         amount = int(request.form["amount"])
-        ac_no = session.get("ac_no")
 
-        # check current balance
-        cursor.execute("select balance from users_data where ac_no=%s",(ac_no,))
-        res = cursor.fetchone()
+        session["withdraw_amount"] = amount
 
-        if res:
-            balance = res[0]
-            if amount > balance:
-                return render_template("withdraw.html", message="Insufficient balance!")
-            else:
-                cursor.execute("update users_data set balance = balance - %s WHERE ac_no=%s",(amount, ac_no))
-
-                connect_db.commit()
-                cursor.execute("insert into transactions(ac_no,type,amount,balance) values(%s,%s,%s,%s)",(ac_no,"Withdraw",amount,balance))
-
-                connect_db.commit()
-
-                return render_template("withdraw.html", message="Withdrawal successful!")
+        return render_template("withdraw_pin.html")
 
     return render_template("withdraw.html", message="")
+
+@app.route("/confirm_withdraw", methods=["POST"])
+def confirm_withdraw():
+
+    pin = request.form["pin"]
+    ac_no = session.get("ac_no")
+    amount = session.get("withdraw_amount")
+
+    cursor.execute("select pin, balance from users_data where ac_no=%s",(ac_no,))
+    res = cursor.fetchone()
+
+    if res:
+        db_pin = str(res[0])
+        balance = res[1]
+
+        # check wrong pin
+        if pin != db_pin:
+            return render_template("withdraw.html", message="Incorrect PIN")
+
+        # check insufficient balance
+        if amount > balance:
+            return render_template("withdraw.html", message="Insufficient balance")
+
+        new_balance = balance - amount
+
+        # update balance
+        cursor.execute("update users_data set balance=%s where ac_no=%s",(new_balance, ac_no))
+
+        connect_db.commit()
+
+        # store transaction
+        cursor.execute("insert into transactions(ac_no,type,amount,balance) values(%s,%s,%s,%s)",(ac_no, "Withdraw", amount, new_balance))
+
+        connect_db.commit()
+
+        return render_template("withdraw.html",message=f"Withdrawal successful! Remaining balance: Rs{new_balance}")
 
 
 @app.route("/transaction")
