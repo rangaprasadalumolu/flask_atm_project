@@ -1,0 +1,17 @@
+{% extends "welcome.html" %}
+
+{% block title %}OTP Verification{% endblock %}
+
+{% block content %}
+
+<h2>Enter OTP</h2>
+
+<form action="/verify_otp" method="post"><input type="text" name="otp" placeholder="Enter OTP" required>
+<button type="submit">Verify</button>
+</form>
+
+<div class="error">
+{{ message }}
+</div>
+
+{% endblock %}
