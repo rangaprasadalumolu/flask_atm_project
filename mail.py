@@ -1,8 +1,9 @@
+import os
 import smtplib
 from email.mime.text import MIMEText
 
-EMAIL_ADDRESS = "youremail@gmail.com"
-EMAIL_PASSWORD = "myrealpassword"   # Use App Password
+EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")   # Use App Password
 
 def send_email(to_email, subject, message):
     try:
