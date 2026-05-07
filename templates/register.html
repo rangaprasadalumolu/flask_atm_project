@@ -1,0 +1,44 @@
+{% extends "welcome.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+
+<h2>Create Account</h2>
+
+<form action="/register" method="post">
+
+    <input type="text"
+           name="name"
+           placeholder="Enter Name"
+           required>
+
+    <input type="email"
+           name="email"
+           placeholder="Enter Email"
+           required>
+           
+    <input type="text"
+       name="phone"
+       placeholder="Enter Mobile Number"
+       required>
+
+    <input type="text"
+           name="account"
+           placeholder="Enter Account Number"
+           required>
+
+    <input type="password"
+           name="pin"
+           placeholder="Create PIN"
+           required>
+
+    <button type="submit">Register</button>
+
+</form>
+
+<div class="error">
+    {{ message }}
+</div>
+
+{% endblock %}

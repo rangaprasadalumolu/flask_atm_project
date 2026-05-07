@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session,redirect, url_for
 import re
 import mysql.connector
 import random
@@ -10,9 +10,9 @@ app.secret_key = "my secret key"
 # ================= DATABASE =================
 connect_db = mysql.connector.connect(
     host="localhost",
-    user="yourusername",
-    password="yourpassword",
-    database="yourdatabasename"
+    user="root",
+    password="root",
+    database="atm"
 )
 
 cursor = connect_db.cursor()
@@ -43,19 +43,67 @@ def account():
             return render_template("account_no.html",ac_no="Enter account number in format: 1XXX XXXX XXXXXXX")
 
     return render_template("account_no.html", ac_no="")
+# ================= REGISTER =================
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+
+    if request.method == "POST":
+
+        name = request.form["name"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+        account_no = request.form["account"]
+        pin = request.form["pin"]
+
+        cursor.execute(
+            "select * from users_data where ac_no=%s",
+            (account_no,)
+        )
+
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            return render_template(
+                "register.html",
+                message="Account already exists"
+            )
+
+        cursor.execute(
+            "insert into users_data(name,email,phone,ac_no,pin,balance) values(%s,%s,%s,%s,%s,%s)",
+            (name, email, phone, account_no, pin, 0)
+        )
+
+        connect_db.commit()
+
+        send_email(
+            email,
+            "Registration Successful",
+            f"Hello {name}, your ATM account has been created successfully."
+        )
+
+        return redirect(url_for("account"))
+
+    return render_template("register.html", message="")
 
 # ================= PIN + OTP =================
-
 @app.route("/pin", methods=["GET", "POST"])
 def pin():
+
     if request.method == "POST":
+
         pin = request.form["password"]
         ac_no = session.get("ac_no")
 
-        cursor.execute("select name, email from users_data where ac_no=%s and pin=%s",(ac_no, pin))
+        cursor.execute(
+            "select name, email from users_data where ac_no=%s and pin=%s",
+            (ac_no, pin)
+        )
+
         res = cursor.fetchone()
 
         if res:
+
             name = res[0]
             email = res[1]
 
@@ -63,14 +111,26 @@ def pin():
 
             # Generate OTP
             otp = str(random.randint(100000, 999999))
+
             session["otp"] = otp
 
-            send_email(email, "ATM Login OTP", f"Your OTP is {otp}")
+            # Send OTP to Email
+            send_email(
+                email,
+                "ATM Login OTP",
+                f"Your OTP for ATM login is: {otp}"
+            )
 
-            return render_template("otp.html")
+            return render_template(
+                "otp.html",
+                message="OTP sent to your registered email"
+            )
 
         else:
-            return render_template("password.html", pass_msg="Wrong PIN. Try again.")
+            return render_template(
+                "password.html",
+                pass_msg="Wrong PIN. Try again."
+            )
 
     return render_template("password.html")
 
@@ -248,6 +308,7 @@ def update_pin():
 def cancel():
     session.clear()
     return render_template("logout.html")
+
 
 # ================= RUN =================
 
