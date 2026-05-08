@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, session,redirect, url_for
 import re
 import sqlite3
 import random
-from mail import send_email   # ✅ Import from separate file
+from mail import send_email
 
 app = Flask(__name__)
 app.secret_key = "my secret key"
@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS users_data(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
     email TEXT,
+    phone TEXT,
     ac_no TEXT,
     pin TEXT,
     balance INTEGER DEFAULT 0
@@ -50,7 +51,7 @@ def account():
         pattern = r'^1\d{3} \d{4} \d{6}$'
 
         if re.match(pattern, account_no):
-            cursor.execute("select ac_no from users_data where ac_no=%s",(account_no,))
+            cursor.execute("select ac_no from users_data where ac_no=?", (account_no,))
             res = cursor.fetchone()
 
             if res:
@@ -76,7 +77,7 @@ def register():
         pin = request.form["pin"]
 
         cursor.execute(
-            "select * from users_data where ac_no=%s",
+            "select * from users_data where ac_no=?",
             (account_no,)
         )
 
@@ -170,7 +171,7 @@ def check_balance():
     ac_no = session.get("ac_no")
 
     if ac_no:
-        cursor.execute("select name, balance from users_data where ac_no=%s",(ac_no,))
+        cursor.execute("select name, balance from users_data where ac_no=?", (ac_no,))
         res = cursor.fetchone()
 
         if res:
