@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, session,redirect, url_for
 import re
-import mysql.connector
+import sqlite3
 import random
 from mail import send_email   # ✅ Import from separate file
 
@@ -8,14 +8,33 @@ app = Flask(__name__)
 app.secret_key = "my secret key"
 
 # ================= DATABASE =================
-connect_db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="root",
-    database="atm"
-)
+connect_db = sqlite3.connect("atm.db", check_same_thread=False)
 
 cursor = connect_db.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS users_data(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    email TEXT,
+    ac_no TEXT,
+    pin TEXT,
+    balance INTEGER DEFAULT 0
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS transactions(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ac_no TEXT,
+    type TEXT,
+    amount INTEGER,
+    balance INTEGER,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
+connect_db.commit()
 
 # ================= ROUTES =================
 
@@ -70,7 +89,7 @@ def register():
             )
 
         cursor.execute(
-            "insert into users_data(name,email,phone,ac_no,pin,balance) values(%s,%s,%s,%s,%s,%s)",
+            "insert into users_data(name,email,phone,ac_no,pin,balance) values(?,?,?,?,?,?)",
             (name, email, phone, account_no, pin, 0)
         )
 
@@ -96,7 +115,7 @@ def pin():
         ac_no = session.get("ac_no")
 
         cursor.execute(
-            "select name, email from users_data where ac_no=%s and pin=%s",
+            "select name, email from users_data where ac_no=? and pin=?",
             (ac_no, pin)
         )
 
@@ -182,7 +201,7 @@ def confirm_deposit():
     ac_no = session.get("ac_no")
     amount = session.get("deposit_amount")
 
-    cursor.execute("select pin, balance, email from users_data where ac_no=%s", (ac_no,))
+    cursor.execute("select pin, balance, email from users_data where ac_no=?", (ac_no,))
     res = cursor.fetchone()
 
     if res:
@@ -195,10 +214,10 @@ def confirm_deposit():
 
         new_balance = balance + amount
 
-        cursor.execute("update users_data set balance=%s where ac_no=%s",(new_balance, ac_no))
+        cursor.execute("update users_data set balance=? where ac_no=?", (new_balance, ac_no))
         connect_db.commit()
 
-        cursor.execute("insert into transactions(ac_no,type,amount,balance) values(%s,%s,%s,%s)",
+        cursor.execute("insert into transactions(ac_no,type,amount,balance) values(?,?,?,?)",
                        (ac_no, "Deposit", amount, new_balance))
         connect_db.commit()
 
@@ -228,7 +247,7 @@ def confirm_withdraw():
     ac_no = session.get("ac_no")
     amount = session.get("withdraw_amount")
 
-    cursor.execute("select pin, balance, email from users_data where ac_no=%s",(ac_no,))
+    cursor.execute("select pin, balance, email from users_data where ac_no=?", (ac_no,))
     res = cursor.fetchone()
 
     if res:
@@ -244,10 +263,10 @@ def confirm_withdraw():
 
         new_balance = balance - amount
 
-        cursor.execute("update users_data set balance=%s where ac_no=%s",(new_balance, ac_no))
+        cursor.execute("update users_data set balance=? where ac_no=?", (new_balance, ac_no))
         connect_db.commit()
 
-        cursor.execute("insert into transactions(ac_no,type,amount,balance) values(%s,%s,%s,%s)",
+        cursor.execute("insert into transactions(ac_no,type,amount,balance) values(?,?,?,?)",
                        (ac_no, "Withdraw", amount, new_balance))
         connect_db.commit()
 
@@ -263,7 +282,7 @@ def confirm_withdraw():
 @app.route("/transaction")
 def transaction():
     ac_no = session.get("ac_no")
-    cursor.execute("select date, type, amount, balance from transactions where ac_no=%s order by date desc",(ac_no,))
+    cursor.execute("select date, type, amount, balance from transactions where ac_no=? order by date desc",(ac_no,))
     data = cursor.fetchall()
     return render_template("transaction.html",transactions=data)
 
@@ -278,7 +297,7 @@ def update_pin():
 
         ac_no = session.get("ac_no")
 
-        cursor.execute("select pin, email from users_data where ac_no=%s",(ac_no,))
+        cursor.execute("select pin, email from users_data where ac_no=?", (ac_no,))
         res = cursor.fetchone()
 
         if res:
@@ -291,7 +310,7 @@ def update_pin():
             if new_pin != confirm_pin:
                 return render_template("update_pin.html", message="PIN mismatch")
 
-            cursor.execute("update users_data set pin=%s where ac_no=%s", (new_pin, ac_no))
+            cursor.execute("update users_data set pin=? where ac_no=?", (new_pin, ac_no))
             connect_db.commit()
 
             # EMAIL ALERT
@@ -312,4 +331,4 @@ def cancel():
 
 # ================= RUN =================
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
