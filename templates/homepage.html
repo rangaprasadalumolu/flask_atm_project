@@ -1,38 +1,94 @@
-{% extends "welcome.html" %}
+{% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}
+Dashboard
+{% endblock %}
 
 {% block content %}
 
-<h2>Welcome {{name}}</h2>
+<div class="card p-4">
 
-<p>Select a transaction</p>
+<h2 class="text-center">
+Welcome {{ name }}
+</h2>
 
-<div class="menu">
+<hr>
 
-<form action="/check_balance">
-<button>Check Balance</button>
-</form>
+<div class="row">
 
-<form action="/deposit">
-<button>Deposit</button>
-</form>
+<div class="col-md-6 mb-3">
 
-<form action="/withdraw">
-<button>Withdraw</button>
-</form>
+<a href="/check_balance"
+class="btn btn-primary w-100">
 
-<form action="/transaction">
-<button>Transaction History</button>
-</form>
+<i class="fa-solid fa-wallet"></i>
+Check Balance
 
-<form action="/update_pin">
-<button>Change PIN</button>
-</form>
+</a>
 
-<form action="/cancel">
-<button style="background:#cc0000;">Logout</button>
-</form>
+</div>
+
+<div class="col-md-6 mb-3">
+
+<a href="/deposit"
+class="btn btn-success w-100">
+
+<i class="fa-solid fa-money-bill"></i>
+Deposit
+
+</a>
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<a href="/withdraw"
+class="btn btn-warning w-100">
+
+<i class="fa-solid fa-money-bill-transfer"></i>
+Withdraw
+
+</a>
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<a href="/transactions"
+class="btn btn-info w-100">
+
+<i class="fa-solid fa-clock-rotate-left"></i>
+Transactions
+
+</a>
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<a href="/change_pin"
+class="btn btn-secondary w-100">
+
+<i class="fa-solid fa-key"></i>
+Change PIN
+
+</a>
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<a href="/logout"
+class="btn btn-danger w-100">
+
+<i class="fa-solid fa-right-from-bracket"></i>
+Logout
+
+</a>
+
+</div>
+
+</div>
 
 </div>
 

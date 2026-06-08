@@ -1,71 +1,42 @@
-from flask import Flask, render_template, request, session,redirect, url_for
-import re
-import sqlite3
+from flask import Flask
+from flask import session
 import random
 from mail import send_email
+import sqlite3
 import os
+from dotenv import load_dotenv
+from flask import render_template
+from flask import request
+from flask import redirect
+from flask import url_for
+from werkzeug.security import generate_password_hash
+from werkzeug.security import check_password_hash
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY", "fallback-secret")
+app.secret_key = os.getenv("SECRET_KEY")
 
-# ================= DATABASE =================
-connect_db = sqlite3.connect("atm.db", check_same_thread=False)
-
-cursor = connect_db.cursor()
+conn = sqlite3.connect("atm.db", check_same_thread=False)
+cursor = conn.cursor()
 
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS users_data(
+CREATE TABLE IF NOT EXISTS users(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT,
     email TEXT,
     phone TEXT,
-    ac_no TEXT,
+    account_no TEXT UNIQUE,
     pin TEXT,
     balance INTEGER DEFAULT 0
 )
 """)
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS transactions(
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    ac_no TEXT,
-    type TEXT,
-    amount INTEGER,
-    balance INTEGER,
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-""")
-
-connect_db.commit()
-
-# ================= ROUTES =================
+conn.commit()
 
 @app.route("/")
-def welcome():
+def home():
     return render_template("welcome.html")
-
-
-@app.route("/account", methods=["GET", "POST"])
-def account():
-    if request.method == "POST":
-        account_no = request.form["account"]
-        pattern = r'^1\d{3} \d{4} \d{6}$'
-
-        if re.match(pattern, account_no):
-            cursor.execute("select ac_no from users_data where ac_no=?", (account_no,))
-            res = cursor.fetchone()
-
-            if res:
-                session["ac_no"] = account_no
-                return render_template("password.html",pass_msg="Account verified. Enter ATM PIN")
-            else:
-                return render_template("account_no.html",ac_no="Account number does not exist")
-        else:
-            return render_template("account_no.html",ac_no="Enter account number in format: 1XXX XXXX XXXXXXX")
-
-    return render_template("account_no.html", ac_no="")
-# ================= REGISTER =================
-
 @app.route("/register", methods=["GET", "POST"])
 def register():
 
@@ -74,263 +45,521 @@ def register():
         name = request.form["name"]
         email = request.form["email"]
         phone = request.form["phone"]
-        account_no = request.form["account"]
+        if len(phone) != 10:
+            return render_template("register.html", message="Phone number must be 10 digits")
+        account_no = request.form["account_no"]
         pin = request.form["pin"]
+        hashed_pin = generate_password_hash(pin)
+        if len(pin) != 4:
+            return render_template("register.html", message="PIN must be 4 digits")
+
+        # Check account already exists
 
         cursor.execute(
-            "select * from users_data where ac_no=?",
+            "SELECT * FROM users WHERE account_no=?",
             (account_no,)
         )
 
-        existing_user = cursor.fetchone()
+        existing = cursor.fetchone()
 
-        if existing_user:
+        if existing:
             return render_template(
                 "register.html",
                 message="Account already exists"
             )
 
         cursor.execute(
-            "insert into users_data(name,email,phone,ac_no,pin,balance) values(?,?,?,?,?,?)",
-            (name, email, phone, account_no, pin, 0)
+            """
+            INSERT INTO users
+            (name,email,phone,account_no,pin,balance)
+            VALUES(?,?,?,?,?,?)
+            """,
+            (
+                name,
+                email,
+                phone,
+                account_no,
+                hashed_pin,
+                0
+            )
         )
 
-        connect_db.commit()
+        conn.commit()
+
+        return redirect(url_for("home"))
+
+    return render_template(
+        "register.html",
+        message=""
+    )
+@app.route("/account", methods=["GET","POST"])
+def account():
+
+    if request.method == "POST":
+
+        account_no = request.form["account_no"]
+
+        cursor.execute(
+            "SELECT * FROM users WHERE account_no=?",
+            (account_no,)
+        )
+
+        user = cursor.fetchone()
+
+        if user:
+
+            session["account_no"] = account_no
+
+            return render_template(
+                "password.html",
+                message=""
+            )
+
+        return render_template(
+            "account_no.html",
+            message="Account Not Found"
+        )
+
+    return render_template(
+        "account_no.html",
+        message=""
+    )
+@app.route("/pin", methods=["POST"])
+def pin():
+
+    pin = request.form["pin"]
+
+    account_no = session.get("account_no")
+
+    cursor.execute(
+        """
+        SELECT name,email
+        FROM users
+        WHERE account_no=? AND pin=?
+        """,
+        (account_no, pin)
+    )
+
+    user = cursor.fetchone()
+
+    if user:
+
+        name = user[0]
+        email = user[1]
+
+        session["name"] = name
+
+        otp = str(random.randint(100000,999999))
+
+        session["otp"] = otp
 
         send_email(
             email,
-            "Registration Successful",
-            f"Hello {name}, your ATM account has been created successfully."
+            "ATM Login OTP",
+            f"Your OTP is {otp}"
         )
 
-        return redirect(url_for("account"))
-
-    return render_template("register.html", message="")
-
-# ================= PIN + OTP =================
-@app.route("/pin", methods=["GET", "POST"])
-def pin():
-
-    if request.method == "POST":
-
-        pin = request.form["password"]
-        ac_no = session.get("ac_no")
-
-        cursor.execute(
-            "select name, email from users_data where ac_no=? and pin=?",
-            (ac_no, pin)
+        return render_template(
+            "otp.html",
+            message="OTP Sent Successfully"
         )
 
-        res = cursor.fetchone()
-
-        if res:
-
-            name = res[0]
-            email = res[1]
-
-            session["name"] = name
-
-            # Generate OTP
-            otp = str(random.randint(100000, 999999))
-
-            session["otp"] = otp
-
-            # Send OTP to Email
-            send_email(
-                email,
-                "ATM Login OTP",
-                f"Your OTP for ATM login is: {otp}"
-            )
-
-            return render_template(
-                "otp.html",
-                message="OTP sent to your registered email"
-            )
-
-        else:
-            return render_template(
-                "password.html",
-                pass_msg="Wrong PIN. Try again."
-            )
-
-    return render_template("password.html")
-
-
+    return render_template(
+        "password.html",
+        message="Wrong PIN"
+    )
 @app.route("/verify_otp", methods=["POST"])
 def verify_otp():
-    user_otp = request.form["otp"]
 
-    if user_otp == session.get("otp"):
-        return render_template("homepage.html", name=session.get("name"))
-    else:
-        return render_template("otp.html", message="Invalid OTP")
+    entered_otp = request.form["otp"]
 
-# ================= BALANCE =================
+    actual_otp = session.get("otp")
 
+    if entered_otp == actual_otp:
+
+        return redirect(
+            url_for("dashboard")
+        )
+
+    return render_template(
+        "otp.html",
+        message="Invalid OTP"
+    )
+@app.route("/dashboard")
+def dashboard():
+
+    if "account_no" not in session:
+        return redirect(url_for("account"))
+
+    return render_template(
+        "homepage.html",
+        name=session.get("name")
+    )
 @app.route("/check_balance")
 def check_balance():
-    ac_no = session.get("ac_no")
 
-    if ac_no:
-        cursor.execute("select name, balance from users_data where ac_no=?", (ac_no,))
-        res = cursor.fetchone()
+    if "account_no" not in session:
+        return redirect(url_for("account"))
 
-        if res:
-            return render_template("check_balance.html", name=res[0], balance=res[1])
+    account_no = session.get("account_no")
 
-    return "Session expired. Please login again."
+    cursor.execute(
+        """
+        SELECT name,balance
+        FROM users
+        WHERE account_no=?
+        """,
+        (account_no,)
+    )
 
+    user = cursor.fetchone()
 
-@app.route("/homepage")
-def return_home():
-    return render_template("homepage.html", name=session.get("name"))
-
-# ================= DEPOSIT =================
-
-@app.route("/deposit", methods=["GET", "POST"])
+    return render_template(
+        "check_balance.html",
+        name=user[0],
+        balance=user[1],
+        account_no=account_no
+    )
+@app.route("/deposit", methods=["GET","POST"])
 def deposit():
+
+    if "account_no" not in session:
+        return redirect(url_for("account"))
+
     if request.method == "POST":
+
         amount = int(request.form["amount"])
+
+        if amount <= 0:
+            return render_template(
+                "deposit.html",
+                message="Invalid Amount"
+            )
+
         session["deposit_amount"] = amount
-        return render_template("deposit_pin.html", message="")
 
-    return render_template("deposit.html", message="")
+        return render_template(
+            "deposit_pin.html"
+        )
 
+    return render_template(
+        "deposit.html",
+        message=""
+    )
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS transactions(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    account_no TEXT,
+    type TEXT,
+    amount INTEGER,
+    balance INTEGER,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
+conn.commit()
 
 @app.route("/confirm_deposit", methods=["POST"])
 def confirm_deposit():
+
     pin = request.form["pin"]
-    ac_no = session.get("ac_no")
+
+    account_no = session.get("account_no")
+
     amount = session.get("deposit_amount")
 
-    cursor.execute("select pin, balance, email from users_data where ac_no=?", (ac_no,))
-    res = cursor.fetchone()
+    cursor.execute(
+        """
+        SELECT pin,balance,email
+        FROM users
+        WHERE account_no=?
+        """,
+        (account_no,)
+    )
 
-    if res:
-        db_pin = str(res[0])
-        balance = res[1]
-        email = res[2]
+    user = cursor.fetchone()
 
-        if pin != db_pin:
-            return render_template("deposit.html", message="Incorrect PIN")
+    if not user:
+        return redirect(url_for("account"))
 
-        new_balance = balance + amount
+    db_pin = user[0]
+    balance = user[1]
+    email = user[2]
 
-        cursor.execute("update users_data set balance=? where ac_no=?", (new_balance, ac_no))
-        connect_db.commit()
+    if not check_password_hash(db_pin, pin):
 
-        cursor.execute("insert into transactions(ac_no,type,amount,balance) values(?,?,?,?)",
-                       (ac_no, "Deposit", amount, new_balance))
-        connect_db.commit()
+        return render_template(
+            "deposit.html",
+            message="Wrong PIN"
+        )
 
-        # EMAIL ALERT
-        send_email(email, "Deposit Alert",
-                   f"Rs {amount} deposited successfully.\nNew balance: Rs {new_balance}")
+    new_balance = balance + amount
 
-        return render_template("deposit.html", message="Deposit successful!")
+    cursor.execute(
+        """
+        UPDATE users
+        SET balance=?
+        WHERE account_no=?
+        """,
+        (
+            new_balance,
+            account_no
+        )
+    )
 
-    return render_template("deposit.html", message="Something went wrong")
+    conn.commit()
 
-# ================= WITHDRAW =================
+    cursor.execute(
+        """
+        INSERT INTO transactions
+        (account_no,type,amount,balance)
+        VALUES(?,?,?,?)
+        """,
+        (
+            account_no,
+            "Deposit",
+            amount,
+            new_balance
+        )
+    )
 
+    conn.commit()
+
+    send_email(
+        email,
+        "Deposit Successful",
+        f"""
+Amount Deposited: ₹{amount}
+
+Current Balance: ₹{new_balance}
+"""
+    )
+
+    return render_template(
+        "deposit.html",
+        message=f"₹{amount} Deposited Successfully"
+    )
 @app.route("/withdraw", methods=["GET","POST"])
 def withdraw():
+
+    if "account_no" not in session:
+        return redirect(url_for("account"))
+
     if request.method == "POST":
+
         amount = int(request.form["amount"])
+
+        if amount <= 0:
+
+            return render_template(
+                "withdraw.html",
+                message="Invalid Amount"
+            )
+
         session["withdraw_amount"] = amount
-        return render_template("withdraw_pin.html")
 
-    return render_template("withdraw.html", message="")
+        return render_template(
+            "withdraw_pin.html"
+        )
 
-
+    return render_template(
+        "withdraw.html",
+        message=""
+    )
 @app.route("/confirm_withdraw", methods=["POST"])
 def confirm_withdraw():
+
     pin = request.form["pin"]
-    ac_no = session.get("ac_no")
+
+    account_no = session.get("account_no")
+
     amount = session.get("withdraw_amount")
 
-    cursor.execute("select pin, balance, email from users_data where ac_no=?", (ac_no,))
-    res = cursor.fetchone()
+    cursor.execute(
+        """
+        SELECT pin,balance,email
+        FROM users
+        WHERE account_no=?
+        """,
+        (account_no,)
+    )
 
-    if res:
-        db_pin = str(res[0])
-        balance = res[1]
-        email = res[2]
+    user = cursor.fetchone()
 
-        if pin != db_pin:
-            return render_template("withdraw.html", message="Incorrect PIN")
+    if not user:
+        return redirect(url_for("account"))
 
-        if amount > balance:
-            return render_template("withdraw.html", message="Insufficient balance")
+    db_pin = user[0]
+    balance = user[1]
+    email = user[2]
 
-        new_balance = balance - amount
+    if not check_password_hash(db_pin, pin):
 
-        cursor.execute("update users_data set balance=? where ac_no=?", (new_balance, ac_no))
-        connect_db.commit()
+        return render_template(
+            "withdraw.html",
+            message="Wrong PIN"
+        )
 
-        cursor.execute("insert into transactions(ac_no,type,amount,balance) values(?,?,?,?)",
-                       (ac_no, "Withdraw", amount, new_balance))
-        connect_db.commit()
+    if amount > balance:
 
-        # EMAIL ALERT
-        send_email(email, "Withdrawal Alert",
-                   f"Rs {amount} withdrawn.\nRemaining balance: Rs {new_balance}")
+        return render_template(
+            "withdraw.html",
+            message="Insufficient Balance"
+        )
 
-        return render_template("withdraw.html",
-                               message=f"Withdrawal successful! Remaining balance: Rs{new_balance}")
+    new_balance = balance - amount
 
-# ================= TRANSACTION =================
+    cursor.execute(
+        """
+        UPDATE users
+        SET balance=?
+        WHERE account_no=?
+        """,
+        (
+            new_balance,
+            account_no
+        )
+    )
 
-@app.route("/transaction")
-def transaction():
-    ac_no = session.get("ac_no")
-    cursor.execute("select date, type, amount, balance from transactions where ac_no=? order by date desc",(ac_no,))
+    conn.commit()
+
+    cursor.execute(
+        """
+        INSERT INTO transactions
+        (account_no,type,amount,balance)
+        VALUES(?,?,?,?)
+        """,
+        (
+            account_no,
+            "Withdraw",
+            amount,
+            new_balance
+        )
+    )
+
+    conn.commit()
+
+    send_email(
+        email,
+        "Withdrawal Successful",
+        f"""
+Amount Withdrawn: ₹{amount}
+
+Remaining Balance: ₹{new_balance}
+"""
+    )
+
+    return render_template(
+        "withdraw.html",
+        message=f"₹{amount} Withdrawn Successfully"
+    )
+@app.route("/transactions")
+def transactions():
+
+    if "account_no" not in session:
+        return redirect(url_for("account"))
+
+    account_no = session.get("account_no")
+
+    cursor.execute(
+        """
+        SELECT date,type,amount,balance
+        FROM transactions
+        WHERE account_no=?
+        ORDER BY date DESC
+        """,
+        (account_no,)
+    )
+
     data = cursor.fetchall()
-    return render_template("transaction.html",transactions=data)
 
-# ================= PIN UPDATE =================
-
+    return render_template(
+        "transaction.html",
+        transactions=data
+    )
 @app.route("/update_pin", methods=["GET","POST"])
 def update_pin():
+
+    if "account_no" not in session:
+        return redirect(url_for("account"))
+
     if request.method == "POST":
+
         old_pin = request.form["old_pin"]
         new_pin = request.form["new_pin"]
         confirm_pin = request.form["confirm_pin"]
 
-        ac_no = session.get("ac_no")
+        account_no = session.get("account_no")
 
-        cursor.execute("select pin, email from users_data where ac_no=?", (ac_no,))
-        res = cursor.fetchone()
+        cursor.execute(
+            """
+            SELECT pin,email
+            FROM users
+            WHERE account_no=?
+            """,
+            (account_no,)
+        )
 
-        if res:
-            current_pin = str(res[0])
-            email = res[1]
+        user = cursor.fetchone()
 
-            if old_pin != current_pin:
-                return render_template("update_pin.html", message="Current PIN is incorrect")
+        current_pin = user[0]
+        email = user[1]
 
-            if new_pin != confirm_pin:
-                return render_template("update_pin.html", message="PIN mismatch")
+        if not check_password_hash(current_pin, old_pin):
 
-            cursor.execute("update users_data set pin=? where ac_no=?", (new_pin, ac_no))
-            connect_db.commit()
+            return render_template(
+                "update_pin.html",
+                message="Current PIN is incorrect"
+            )
 
-            # EMAIL ALERT
-            send_email(email, "PIN Changed",
-                       "Your ATM PIN has been successfully updated.")
+        if not check_password_hash(new_pin, confirm_pin):
 
-            return render_template("update_pin.html", message="PIN updated successfully!")
+            return render_template(
+                "update_pin.html",
+                message="New PIN and Confirm PIN do not match"
+            )
 
-    return render_template("update_pin.html", message="")
+        if len(new_pin) != 4:
 
-# ================= LOGOUT =================
+            return render_template(
+                "update_pin.html",
+                message="PIN must be 4 digits"
+            )
 
-@app.route("/cancel")
-def cancel():
+        cursor.execute(
+            """
+            UPDATE users
+            SET pin=?
+            WHERE account_no=?
+            """,
+            (
+                new_pin,
+                account_no
+            )
+        )
+
+        conn.commit()
+
+        send_email(
+            email,
+            "ATM PIN Updated",
+            "Your ATM PIN has been changed successfully."
+        )
+
+        return render_template(
+            "update_pin.html",
+            message="PIN Updated Successfully"
+        )
+
+    return render_template(
+        "update_pin.html",
+        message=""
+    )
+@app.route("/logout")
+def logout():
+
     session.clear()
+
     return render_template("logout.html")
-
-
-# ================= RUN =================
 if __name__ == "__main__":
-    app.run()
+    app.run(host="0.0.0.0", port=5000)

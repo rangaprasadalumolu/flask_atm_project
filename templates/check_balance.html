@@ -1,19 +1,37 @@
-{% extends "welcome.html" %}
+{% extends "base.html" %}
 
-{% block title %}Check Balance{% endblock %}
+{% block title %}
+Balance
+{% endblock %}
 
 {% block content %}
 
-<h2>Account Balance</h2>
+<div class="card p-5 text-center">
 
-<h3>Hello {{name}}</h3>
-<br>
-<h3 style="color: rgba(0, 0, 255, 0.837);">Available Balance:</h3>
-<h1 style="color:green">Rs {{balance}}</h1>
-<br>
+<h3>{{ name }}</h3>
 
-<form action="/homepage">
-<button>Back to Menu</button>
-</form>
+<p>
+Account Number:
+<strong>{{ account_no }}</strong>
+</p>
+
+<hr>
+
+<h2>Available Balance</h2>
+
+<h1 class="text-success">
+
+₹ {{ balance }}
+
+</h1>
+
+<a href="/dashboard"
+class="btn btn-primary mt-3">
+
+Back
+
+</a>
+
+</div>
 
 {% endblock %}
