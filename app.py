@@ -3,9 +3,10 @@ import re
 import sqlite3
 import random
 from mail import send_email
+import os
 
 app = Flask(__name__)
-app.secret_key = "my secret key"
+app.secret_key = os.getenv("SECRET_KEY", "fallback-secret")
 
 # ================= DATABASE =================
 connect_db = sqlite3.connect("atm.db", check_same_thread=False)
@@ -332,4 +333,4 @@ def cancel():
 
 # ================= RUN =================
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

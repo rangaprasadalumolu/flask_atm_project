@@ -1,35 +1,30 @@
 import smtplib
 from email.mime.text import MIMEText
-from dotenv import load_dotenv
 import os
 
-load_dotenv()
+EMAIL = os.environ.get("EMAIL_USER")
+PASSWORD = os.environ.get("EMAIL_PASS")
 
-EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
-EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
+def send_email(to_email, subject, body):
 
-def send_email(to_email, subject, message):
+    msg = MIMEText(body)
+
+    msg['Subject'] = subject
+    msg['From'] = EMAIL
+    msg['To'] = to_email
 
     try:
-
-        msg = MIMEText(message)
-
-        msg["Subject"] = subject
-        msg["From"] = EMAIL_ADDRESS
-        msg["To"] = to_email
-
-        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=30)
 
         server.starttls()
 
-        server.login(EMAIL_ADDRESS, EMAIL_PASSWORD)
+        server.login(EMAIL, PASSWORD)
 
-        server.send_message(msg)
+        server.sendmail(EMAIL, to_email, msg.as_string())
 
         server.quit()
 
         print("Email sent successfully")
 
     except Exception as e:
-
-        print("Email error:", e)
+        print("Email Error:", e)
