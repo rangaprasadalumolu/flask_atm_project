@@ -150,11 +150,10 @@ def pin():
 
         session["otp"] = otp
 
-        send_email(
-            email,
-            "ATM Login OTP",
-            f"Your OTP is {otp}"
-        )
+        try:
+            send_email(email, "ATM Login OTP", f"Your OTP is {otp}")
+        except Exception as e:
+            print("EMAIL ERROR:", e)
 
         return render_template(
             "otp.html",
@@ -558,5 +557,15 @@ def logout():
     session.clear()
 
     return render_template("logout.html")
+
+@app.route("/check_env")
+def check_env():
+
+    import os
+
+    return {
+        "EMAIL_USER": os.getenv("EMAIL_USER"),
+        "EMAIL_PASS_EXISTS": bool(os.getenv("EMAIL_PASS"))
+    }
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

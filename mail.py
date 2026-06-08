@@ -17,7 +17,8 @@ def send_email(to_email, subject, body):
 
         with smtplib.SMTP_SSL(
             "smtp.gmail.com",
-            465
+            465,
+            timeout=10
         ) as server:
 
             server.login(
