@@ -4,6 +4,8 @@ import random
 from mail import send_email
 import sqlite3
 import os
+import time
+from datetime import timedelta
 from dotenv import load_dotenv
 from flask import render_template
 from flask import request
@@ -14,6 +16,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY")
+app.permanent_session_lifetime = timedelta(minutes=15)
 
 conn = sqlite3.connect("atm.db", check_same_thread=False)
 cursor = conn.cursor()
@@ -43,11 +46,11 @@ def register():
         name = request.form["name"]
         email = request.form["email"]
         phone = request.form["phone"]
-        if len(phone) != 10:
+        if  not phone.isdigit() or len(phone) != 10:
             return render_template("register.html", message="Phone number must be 10 digits")
         account_no = request.form["account_no"]
         pin = request.form["pin"]
-        if len(pin) != 4:
+        if not pin.isdigit() or len(pin) != 4:
             return render_template("register.html", message="PIN must be 4 digits")
 
         # Check account already exists
@@ -149,34 +152,47 @@ def pin():
         otp = str(random.randint(100000,999999))
 
         session["otp"] = otp
+        session["otp_time"] = time.time()
 
-        try:
-            send_email(email, "ATM Login OTP", f"Your OTP is {otp}")
-        except Exception as e:
-            print("EMAIL ERROR:", e)
+        email_sent = send_email(
+            email,
+            "ATM Login OTP",
+            f"Your OTP is {otp}"
+        )
+        if not email_sent:
+            print("OTP:", otp)
 
+            return render_template(
+                "otp.html",
+                message="Email could not be sent. Check server logs for OTP."
+            )
         return render_template(
             "otp.html",
             message="OTP Sent Successfully"
         )
-
-    return render_template(
-        "password.html",
-        message="Wrong PIN"
-    )
 @app.route("/verify_otp", methods=["POST"])
 def verify_otp():
 
+    if "otp" not in session:
+        return redirect(url_for("account"))
+    
     entered_otp = request.form["otp"]
 
-    actual_otp = session.get("otp")
-
-    if entered_otp == actual_otp:
-
-        return redirect(
-            url_for("dashboard")
+    otp_time = session.get("otp_time",0)
+    if time.time() - otp_time > 300:
+        session.pop("otp", None)
+        session.pop("otp_time", None)
+        return render_template(
+            "otp.html",
+            message="OTP Expired. Please login again."
         )
+    if entered_otp == session.get("otp"):
 
+        session.pop("otp", None)
+        session.pop("otp_time", None)
+
+        return redirect(url_for("dashboard"))
+    
     return render_template(
         "otp.html",
         message="Invalid OTP"
@@ -223,10 +239,9 @@ def deposit():
         return redirect(url_for("account"))
 
     if request.method == "POST":
-
-        amount = int(request.form["amount"])
-
-        if amount <= 0:
+        try:
+            amount = int(request.form["amount"])
+        except ValueError:
             return render_template(
                 "deposit.html",
                 message="Invalid Amount"
@@ -342,11 +357,10 @@ def withdraw():
         return redirect(url_for("account"))
 
     if request.method == "POST":
+        try:
 
-        amount = int(request.form["amount"])
-
-        if amount <= 0:
-
+            amount = int(request.form["amount"])
+        except ValueError:
             return render_template(
                 "withdraw.html",
                 message="Invalid Amount"
