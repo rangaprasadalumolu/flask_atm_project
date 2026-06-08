@@ -9,8 +9,6 @@ from flask import render_template
 from flask import request
 from flask import redirect
 from flask import url_for
-from werkzeug.security import generate_password_hash
-from werkzeug.security import check_password_hash
 
 load_dotenv()
 
@@ -49,7 +47,6 @@ def register():
             return render_template("register.html", message="Phone number must be 10 digits")
         account_no = request.form["account_no"]
         pin = request.form["pin"]
-        hashed_pin = generate_password_hash(pin)
         if len(pin) != 4:
             return render_template("register.html", message="PIN must be 4 digits")
 
@@ -79,7 +76,7 @@ def register():
                 email,
                 phone,
                 account_no,
-                hashed_pin,
+                pin,
                 0
             )
         )
@@ -286,7 +283,7 @@ def confirm_deposit():
     balance = user[1]
     email = user[2]
 
-    if not check_password_hash(db_pin, pin):
+    if db_pin != pin:
 
         return render_template(
             "deposit.html",
@@ -393,7 +390,7 @@ def confirm_withdraw():
     balance = user[1]
     email = user[2]
 
-    if not check_password_hash(db_pin, pin):
+    if db_pin != pin:
 
         return render_template(
             "withdraw.html",
@@ -505,14 +502,14 @@ def update_pin():
         current_pin = user[0]
         email = user[1]
 
-        if not check_password_hash(current_pin, old_pin):
+        if current_pin != old_pin:
 
             return render_template(
                 "update_pin.html",
                 message="Current PIN is incorrect"
             )
 
-        if not check_password_hash(new_pin, confirm_pin):
+        if new_pin != confirm_pin:
 
             return render_template(
                 "update_pin.html",
