@@ -1,39 +1,25 @@
 import smtplib
 from email.mime.text import MIMEText
-import os
+
+EMAIL = "rangaprasadalumolu66@gmail.com"
+PASSWORD = "gwgxjkyimwwfwijs"
 
 def send_email(to_email, subject, body):
 
-    EMAIL = os.getenv("EMAIL_USER")
-    PASSWORD = os.getenv("EMAIL_PASS")
+    msg = MIMEText(body)
 
-    try:
+    msg["Subject"] = subject
+    msg["From"] = EMAIL
+    msg["To"] = to_email
 
-        msg = MIMEText(body)
+    with smtplib.SMTP_SSL(
+        "smtp.gmail.com",
+        465
+    ) as server:
 
-        msg["Subject"] = subject
-        msg["From"] = EMAIL
-        msg["To"] = to_email
+        server.login(
+            EMAIL,
+            PASSWORD
+        )
 
-        with smtplib.SMTP_SSL(
-            "smtp.gmail.com",
-            465,
-            timeout=10
-        ) as server:
-
-            server.login(
-                EMAIL,
-                PASSWORD
-            )
-
-            server.send_message(msg)
-
-        return True
-
-    except Exception as e:
-
-        print("EMAIL ERROR")
-        print(type(e).__name__)
-        print(str(e))
-
-        return False
+        server.send_message(msg)

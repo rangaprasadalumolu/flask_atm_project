@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>
+Welcome {{user.name}}
+</h2>
+
+<div class="row mt-4">
+
+<div class="col-md-4">
+
+<div class="card shadow">
+
+<div class="card-body">
+
+<h5>
+Account Number
+</h5>
+
+<p>
+{{user.account_no}}
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="card balance-box shadow">
+
+    <div class="card-body">
+
+        <h5>Available Balance</h5>
+
+        <div class="balance-amount">
+            ₹ {{ "%.2f"|format(user.balance) }}
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+</div>
+
+<br>
+
+<a href="/deposit"
+class="btn btn-success">
+Deposit
+</a>
+
+<a href="/withdrawal"
+class="btn btn-warning">
+Withdraw
+</a>
+
+<a href="/transactions"
+class="btn btn-info">
+Transactions
+</a>
+
+<a href="/update_pin"
+class="btn btn-secondary">
+Change PIN
+</a>
+
+<a href="/logout"
+class="btn btn-danger">
+Logout
+</a>
+
+{% endblock %}

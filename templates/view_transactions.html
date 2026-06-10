@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="mb-4">
+All Transactions
+</h2>
+
+<div class="card shadow">
+
+<div class="card-body">
+
+<table class="table table-bordered table-striped">
+
+<thead class="table-dark">
+
+<tr>
+
+<th>ID</th>
+<th>Account Number</th>
+<th>Type</th>
+<th>Amount</th>
+<th>Balance</th>
+<th>Date</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for row in records %}
+
+<tr>
+
+<td>{{ row.id }}</td>
+
+<td>{{ row.account_no }}</td>
+
+<td>{{ row.transaction_type }}</td>
+
+<td>₹ {{ row.amount }}</td>
+
+<td>₹ {{ row.balance }}</td>
+
+<td>{{ row.transaction_date }}</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<br>
+
+<a href="/admin_dashboard"
+class="btn btn-primary">
+Back to Dashboard
+</a>
+
+{% endblock %}
