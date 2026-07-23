@@ -1,26 +1,38 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Users{% endblock %}
 
 {% block content %}
 
-<h2 class="mb-4">
-All Users
-</h2>
+<h2>User Management</h2>
 
-<div class="card shadow">
+<form class="mb-3">
 
-<div class="card-body">
+<input
+type="text"
+name="search"
+class="form-control"
+placeholder="Search User..."
+value="{{ search }}">
 
-<table class="table table-bordered table-striped">
+</form>
+
+<div class="table-responsive">
+
+<table class="table table-bordered table-hover">
 
 <thead class="table-dark">
 
 <tr>
 
-<th>ID</th>
-<th>Account Number</th>
+<th>Account</th>
+
 <th>Name</th>
+
 <th>Email</th>
+
 <th>Balance</th>
+
 <th>Action</th>
 
 </tr>
@@ -29,26 +41,24 @@ All Users
 
 <tbody>
 
-{% for user in users %}
+{% for u in users %}
 
 <tr>
 
-<td>{{ user.id }}</td>
+<td>{{ u.account_no }}</td>
 
-<td>{{ user.account_no }}</td>
+<td>{{ u.name }}</td>
 
-<td>{{ user.name }}</td>
+<td>{{ u.email }}</td>
 
-<td>{{ user.email }}</td>
-
-<td>₹ {{ user.balance }}</td>
+<td>₹ {{ "%.2f"|format(u.balance) }}</td>
 
 <td>
 
 <a
-href="/delete_user/{{ user.id }}"
-class="btn btn-danger btn-sm"
-onclick="return confirm('Delete User?')">
+href="{{ url_for('delete_user',account_no=u.account_no) }}"
+class="btn btn-sm btn-danger"
+onclick="return confirm('Delete this user?')">
 
 Delete
 
@@ -65,14 +75,5 @@ Delete
 </table>
 
 </div>
-
-</div>
-
-<br>
-
-<a href="/admin_dashboard"
-class="btn btn-primary">
-Back
-</a>
 
 {% endblock %}

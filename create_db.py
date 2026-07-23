@@ -1,48 +1,85 @@
 import sqlite3
 
-conn = sqlite3.connect("atm.db")
+DATABASE = "atm.db"
+
+conn = sqlite3.connect(DATABASE)
 
 cursor = conn.cursor()
 
+
+# ==========================================================
+# USERS TABLE
+# ==========================================================
+
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS users(
+CREATE TABLE IF NOT EXISTS users (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+
     account_no TEXT UNIQUE NOT NULL,
+
     name TEXT NOT NULL,
-    email TEXT UNIQUE,
+
+    email TEXT UNIQUE NOT NULL,
+
     pin TEXT NOT NULL,
-    balance REAL DEFAULT 0,
+
+    balance REAL NOT NULL DEFAULT 0,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
 )
 """)
 
+
+# ==========================================================
+# TRANSACTIONS TABLE
+# ==========================================================
+
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS transactions(
+CREATE TABLE IF NOT EXISTS transactions (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    account_no TEXT,
-    transaction_type TEXT,
-    amount REAL,
-    balance REAL,
-    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+    account_no TEXT NOT NULL,
+
+    transaction_type TEXT NOT NULL,
+
+    amount REAL NOT NULL,
+
+    balance REAL NOT NULL,
+
+    transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY(account_no)
+
+    REFERENCES users(account_no)
+
+    ON DELETE CASCADE
+
 )
 """)
 
+
+# ==========================================================
+# ADMIN TABLE
+# ==========================================================
+
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS admins(
+CREATE TABLE IF NOT EXISTS admin (
+
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE,
-    password TEXT
+
+    username TEXT UNIQUE NOT NULL,
+
+    password TEXT NOT NULL
+
 )
 """)
 
-cursor.execute("""
-INSERT OR IGNORE INTO admins
-(username,password)
-VALUES
-('admin','admin123')
-""")
 
 conn.commit()
+
 conn.close()
 
-print("Database Created Successfully")
+print("Database created successfully.")

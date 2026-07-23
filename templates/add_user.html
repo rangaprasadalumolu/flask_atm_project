@@ -1,84 +1,95 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Add User{% endblock %}
 
 {% block content %}
 
-<div class="row justify-content-center">
-
-<div class="col-md-6">
-
 <div class="card shadow">
+
+<div class="card-header bg-success text-white">
+
+<h3>Add User</h3>
+
+</div>
 
 <div class="card-body">
 
-<h3 class="text-center">
-Add New User
-</h3>
+<form method="POST">
 
-<form method="post">
+<div class="row">
+
+<div class="col-md-6 mb-3">
 
 <label>Account Number</label>
+
 <input
 type="text"
 name="account_no"
 class="form-control"
 required>
 
-<br>
+</div>
 
-<label>Full Name</label>
+<div class="col-md-6 mb-3">
+
+<label>Name</label>
+
 <input
 type="text"
 name="name"
 class="form-control"
 required>
 
-<br>
+</div>
+
+<div class="col-md-6 mb-3">
 
 <label>Email</label>
+
 <input
 type="email"
 name="email"
 class="form-control"
 required>
 
-<br>
+</div>
 
-<label>4 Digit PIN</label>
+<div class="col-md-6 mb-3">
+
+<label>PIN</label>
+
 <input
 type="password"
 name="pin"
-class="form-control"
 maxlength="4"
-pattern="[0-9]{4}"
+class="form-control"
 required>
 
-<br>
+</div>
+
+<div class="col-md-6 mb-4">
 
 <label>Opening Balance</label>
+
 <input
 type="number"
 name="balance"
+step="0.01"
 class="form-control"
 required>
 
-<br>
+</div>
+
+</div>
 
 <button
-class="btn btn-success w-100">
-Create Account
+class="btn btn-success">
+
+Create User
+
 </button>
 
 </form>
-
-<br>
-
-<p class="text-danger">
-{{ msg }}
-</p>
-
-</div>
-
-</div>
 
 </div>
 

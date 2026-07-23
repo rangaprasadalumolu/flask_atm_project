@@ -4,20 +4,16 @@ from werkzeug.security import generate_password_hash
 conn = sqlite3.connect("atm.db")
 cursor = conn.cursor()
 
-cursor.execute("DELETE FROM admins")
+username = "admin"
 
-cursor.execute(
-    """
-    INSERT INTO admins(username,password)
-    VALUES(?,?)
-    """,
-    (
-        "admin",
-        generate_password_hash("admin123")
-    )
-)
+password = generate_password_hash("admin123")
+
+cursor.execute("""
+INSERT OR IGNORE INTO admin(username,password)
+VALUES(?,?)
+""", (username, password))
 
 conn.commit()
 conn.close()
 
-print("Admin Created Successfully")
+print("Admin created successfully.")

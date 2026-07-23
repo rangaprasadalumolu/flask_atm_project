@@ -1,201 +1,258 @@
-/* Google Font */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+/* =====================================================
+   ATM MANAGEMENT SYSTEM - PROFESSIONAL CSS
+===================================================== */
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:'Poppins',sans-serif;
+/* ===== BODY ===== */
+
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", Arial, sans-serif;
+
+    background: linear-gradient(
+        135deg,
+        #0f4c81 0%,
+        #1565c0 45%,
+        #42a5f5 100%
+    );
+
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
-body{
-min-height:100vh;
-background: linear-gradient(
-135deg,
-#667eea 0%,
-#764ba2 35%,
-#6dd5ed 100%
-);
-background-attachment: fixed;
+/* ===== CONTAINER ===== */
+
+.container {
+    padding-top: 30px;
+    padding-bottom: 30px;
 }
 
+/* ===== NAVBAR ===== */
 
-/* Navbar */
-
-.navbar{
-background:linear-gradient(
-90deg,
-#0f172a,
-#1e293b
-) !important;
+.navbar {
+    background: rgba(0, 0, 0, 0.35) !important;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 15px rgba(0,0,0,.25);
 }
 
-
-.navbar-brand{
-font-size:1.4rem;
-font-weight:600;
-letter-spacing:0.5px;
+.navbar-brand {
+    font-size: 24px;
+    font-weight: bold;
+    color: white !important;
 }
 
-/* Cards */
+.nav-link {
+    color: white !important;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: #ffd54f !important;
+}
+
+/* ===== CARDS ===== */
+
+.card {
+    border: none;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.96);
+    box-shadow: 0 15px 35px rgba(0,0,0,.25);
+    transition: 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+}
+
+.card-header {
+    border-radius: 18px 18px 0 0 !important;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+/* ===== BUTTONS ===== */
+
+.btn {
+    border-radius: 12px;
+    font-weight: bold;
+    transition: all .3s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,.20);
+}
+
+/* ===== FORM ===== */
+
+.form-control {
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    border-color: #1565c0;
+    box-shadow: 0 0 10px rgba(21,101,192,.30);
+}
+
+/* ===== TABLE ===== */
+
+.table {
+    vertical-align: middle;
+}
+
+.table thead {
+    font-weight: bold;
+}
+
+.table tbody tr:hover {
+    background: #eef6ff;
+}
+
+/* ===== BADGES ===== */
+
+.badge {
+    padding: 8px 12px;
+    font-size: 13px;
+}
+
+/* ===== ALERT ===== */
+
+.alert {
+    border-radius: 10px;
+}
+
+/* ===== DASHBOARD BALANCE ===== */
+
+.balance-card {
+
+    background: linear-gradient(
+        135deg,
+        #198754,
+        #20c997
+    );
+
+    color: white;
+
+    border-radius: 18px;
+
+    padding: 30px;
+
+    text-align: center;
+
+    box-shadow: 0 12px 25px rgba(0,0,0,.20);
+
+}
+
+/* ===== QUICK ACTION CARDS ===== */
+
+.action-card {
+
+    text-align: center;
+
+    padding: 20px;
+
+}
+
+.action-card i {
+
+    font-size: 50px;
+
+    margin-bottom: 15px;
+
+}
+
+/* ===== LOGIN PAGE ===== */
+
+.login-title {
+
+    color: white;
+
+    font-weight: bold;
+
+    text-align: center;
+
+    margin-bottom: 20px;
+
+}
+
+.login-subtitle {
+
+    color: #e3f2fd;
+
+    text-align: center;
+
+    margin-bottom: 35px;
+
+}
+
+/* ===== FOOTER ===== */
+
+footer {
+
+    margin-top: 50px;
+
+    background: rgba(0,0,0,.35);
+
+    backdrop-filter: blur(8px);
+
+    color: white;
+
+    text-align: center;
+
+    padding: 20px;
+
+}
+
+/* ===== LINKS ===== */
+
+a {
+
+    text-decoration: none;
+
+}
+
+a:hover {
+
+    text-decoration: underline;
+
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width:768px){
+
+.container{
+
+padding:15px;
+
+}
 
 .card{
-border:none;
-border-radius:20px;
-background:rgba(255,255,255,0.95);
-backdrop-filter:blur(10px);
-box-shadow:0 10px 30px rgba(0,0,0,0.15);
-transition:all 0.3s ease;
+
+margin-bottom:20px;
+
 }
 
-.card:hover{
-transform:translateY(-5px);
+.display-5{
+
+font-size:2.5rem;
+
 }
 
+h1{
 
-.card:hover{
-transform:translateY(-4px);
-}
-
-.card-body{
-padding:25px;
-}
-
-/* Dashboard Cards */
-
-.balance-card{
-background:linear-gradient(
-135deg,
-#11998e,
-#38ef7d
-);
-color:white;
-}
-
-.deposit-card{
-background:linear-gradient(
-135deg,
-#4facfe,
-#00f2fe
-);
-color:white;
-}
-
-.withdraw-card{
-background:linear-gradient(
-135deg,
-#f857a6,
-#ff5858
-);
-color:white;
-}
-
-/* Forms */
-
-.form-control{
-border-radius:12px;
-padding:12px;
-border:1px solid #dbe3ef;
-}
-
-.form-control:focus{
-border-color:#2563eb;
-box-shadow:none;
-}
-
-/* Buttons */
-
-.btn{
-border-radius:12px;
-padding:10px 18px;
-font-weight:500;
-transition:0.3s ease;
-}
-
-.btn:hover{
-transform:translateY(-2px);
-}
-
-.btn-primary{
-background:#2563eb;
-border:none;
-}
-
-.btn-success{
-background:#16a34a;
-border:none;
-}
-
-.btn-warning{
-background:#f59e0b;
-border:none;
-color:white;
-}
-
-.btn-danger{
-background:#dc2626;
-border:none;
-}
-
-/* Tables */
-
-.table{
-border-radius:12px;
-overflow:hidden;
-}
-
-.table thead{
-background:#0f172a;
-color:white;
-}
-
-.table tbody tr:hover
-
-/* Headings */
-
-h2,h3,h4,h5{
-font-weight:600;
-}
-
-/* Dashboard Balance */
-
-.balance-box{
-background:white;
-border-left:5px solid #16a34a;
-}
-
-.balance-amount{
 font-size:2rem;
-font-weight:700;
-color:#16a34a;
+
 }
 
-/* Login Page */
+.navbar-brand{
 
-.login-card{
-background:rgba(255,255,255,0.96);
-border-radius:25px;
-overflow:hidden;
+font-size:20px;
+
 }
 
-.login-title{
-font-weight:700;
-color:#1e293b;
-}
-
-
-/* Notification */
-
-.alert{
-border:none;
-border-radius:12px;
-}
-
-/* Footer */
-
-.footer{
-text-align:center;
-margin-top:30px;
-color:#64748b;
-font-size:14px;
 }

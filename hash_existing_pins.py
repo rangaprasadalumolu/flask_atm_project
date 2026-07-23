@@ -2,25 +2,31 @@ import sqlite3
 from werkzeug.security import generate_password_hash
 
 conn = sqlite3.connect("atm.db")
+
 cursor = conn.cursor()
 
-cursor.execute("SELECT id,pin FROM users")
+users = cursor.execute(
+    "SELECT account_no,pin FROM users"
+).fetchall()
 
-users = cursor.fetchall()
+for account_no, pin in users:
 
-for user in users:
+    if len(pin) == 4:
 
-    user_id = user[0]
-    old_pin = user[1]
-
-    hashed_pin = generate_password_hash(old_pin)
-
-    cursor.execute(
-        "UPDATE users SET pin=? WHERE id=?",
-        (hashed_pin, user_id)
-    )
+        cursor.execute(
+            """
+            UPDATE users
+            SET pin=?
+            WHERE account_no=?
+            """,
+            (
+                generate_password_hash(pin),
+                account_no
+            )
+        )
 
 conn.commit()
+
 conn.close()
 
-print("All PINs Hashed Successfully")
+print("Existing PINs hashed successfully.")

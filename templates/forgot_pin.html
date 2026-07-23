@@ -1,49 +1,73 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Forgot PIN{% endblock %}
 
 {% block content %}
 
 <div class="row justify-content-center">
 
-<div class="col-md-4">
+<div class="col-md-5">
 
 <div class="card shadow">
 
-<div class="card-body">
+<div class="card-header bg-warning">
 
 <h3 class="text-center">
+
 Forgot PIN
+
 </h3>
 
-<form method="post">
+</div>
+
+<div class="card-body">
+
+<form method="POST">
+
+<div class="mb-3">
+
+<label>
+
+Account Number
+
+</label>
 
 <input
 type="text"
 name="account_no"
-placeholder="Account Number"
 class="form-control"
 required>
 
-<br>
+</div>
+
+<div class="mb-4">
+
+<label>
+
+Registered Email
+
+</label>
 
 <input
 type="email"
 name="email"
-placeholder="Registered Email"
 class="form-control"
 required>
 
-<br>
+</div>
+
+<div class="d-grid">
 
 <button
-class="btn btn-primary w-100">
+class="btn btn-warning">
+
 Send OTP
+
 </button>
 
-</form>
+</div>
 
-<p class="text-danger mt-2">
-{{ msg }}
-</p>
+</form>
 
 </div>
 

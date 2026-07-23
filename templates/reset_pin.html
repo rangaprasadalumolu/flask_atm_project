@@ -1,34 +1,85 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}
+
+Reset PIN
+
+{% endblock %}
 
 {% block content %}
 
-<div class="card shadow p-4">
+<div class="row justify-content-center">
 
-<h3>
+<div class="col-md-5">
+
+<div class="card shadow">
+
+<div class="card-header bg-success text-white">
+
+<h3 class="text-center">
+
 Reset PIN
+
 </h3>
 
-<form method="post">
+</div>
+
+<div class="card-body">
+
+<form method="POST">
+
+<div class="mb-3">
+
+<label>
+
+New PIN
+
+</label>
 
 <input
 type="password"
 name="new_pin"
 maxlength="4"
 class="form-control"
-placeholder="New PIN">
+required>
 
-<br>
+</div>
+
+<div class="mb-4">
+
+<label>
+
+Confirm PIN
+
+</label>
+
+<input
+type="password"
+name="confirm_pin"
+maxlength="4"
+class="form-control"
+required>
+
+</div>
+
+<div class="d-grid">
 
 <button
-class="btn btn-primary">
-Update PIN
+class="btn btn-success">
+
+Reset PIN
+
 </button>
+
+</div>
 
 </form>
 
-<p class="text-danger">
-{{ msg }}
-</p>
+</div>
+
+</div>
+
+</div>
 
 </div>
 

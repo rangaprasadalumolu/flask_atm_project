@@ -1,4 +1,10 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}
+
+Change PIN
+
+{% endblock %}
 
 {% block content %}
 
@@ -8,65 +14,83 @@
 
 <div class="card shadow">
 
-<div class="card-body">
+<div class="card-header bg-info text-white">
 
 <h3 class="text-center">
+
 Change PIN
+
 </h3>
 
-<form method="post">
+</div>
+
+<div class="card-body">
+
+<form method="POST">
+
+<div class="mb-3">
 
 <label>
+
 Current PIN
+
 </label>
 
 <input
 type="password"
 name="current_pin"
-class="form-control"
 maxlength="4"
+class="form-control"
 required>
 
-<br>
+</div>
+
+<div class="mb-3">
 
 <label>
+
 New PIN
+
 </label>
 
 <input
 type="password"
 name="new_pin"
-class="form-control"
 maxlength="4"
+class="form-control"
 required>
 
-<br>
+</div>
+
+<div class="mb-4">
 
 <label>
-Confirm PIN
+
+Confirm New PIN
+
 </label>
 
 <input
 type="password"
 name="confirm_pin"
-class="form-control"
 maxlength="4"
+class="form-control"
 required>
 
-<br>
+</div>
+
+<div class="d-grid">
 
 <button
-class="btn btn-primary w-100">
+class="btn btn-info text-white">
+
 Update PIN
+
 </button>
 
+</div>
+
 </form>
-
-<br>
-
-<p class="text-danger">
-{{ msg }}
-</p>
 
 </div>
 

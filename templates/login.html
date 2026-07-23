@@ -1,65 +1,136 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}
+User Login
+{% endblock %}
 
 {% block content %}
 
 <div class="row justify-content-center">
 
-<div class="col-md-4">
+    <div class="col-lg-5 col-md-7">
 
-<div class="card shadow">
+        <div class="card shadow-lg border-0 rounded-4">
 
-<div class="card-body">
+            <div class="card-header bg-primary text-white text-center py-4">
 
-<h3 class="text-center">
-ATM Login
-</h3>
+                <i class="bi bi-bank display-5"></i>
 
-<form action="/login" method="post">
+                <h3 class="mt-2 mb-0">
 
-<label>
-Account Number
-</label>
+                    ATM Management System
 
-<input
-type="text"
-name="account_no"
-class="form-control"
-required>
+                </h3>
 
-<br>
+                <small>Secure Banking Portal</small>
 
-<label>
-PIN
-</label>
+            </div>
 
-<input
-type="password"
-name="pin"
-class="form-control"
-maxlength="4"
-required>
+            <div class="card-body p-4">
 
-<br>
+                <form action="{{ url_for('login_post') }}" method="POST">
 
-<button
-class="btn btn-primary w-100">
-Login
-</button>
-<a href="/forgot_pin">
-Forgot PIN?
-</a>
+                    <div class="mb-3">
 
-</form>
+                        <label class="form-label">
 
-<p class="text-danger mt-3">
-{{msg}}
-</p>
+                            <i class="bi bi-credit-card"></i>
 
-</div>
+                            Account Number
 
-</div>
+                        </label>
 
-</div>
+                        <input
+                            type="text"
+                            name="account_no"
+                            class="form-control form-control-lg"
+                            placeholder="Enter Account Number"
+                            required
+                            autofocus>
+
+                    </div>
+
+                    <div class="mb-4">
+
+                        <label class="form-label">
+
+                            <i class="bi bi-key-fill"></i>
+
+                            PIN
+
+                        </label>
+
+                        <input
+                            type="password"
+                            name="pin"
+                            maxlength="4"
+                            minlength="4"
+                            class="form-control form-control-lg"
+                            placeholder="Enter 4-Digit PIN"
+                            required>
+
+                    </div>
+
+                    <div class="d-grid">
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary btn-lg">
+
+                            <i class="bi bi-box-arrow-in-right"></i>
+
+                            Login
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+                <hr>
+
+                <div class="text-center">
+
+                    <a href="{{ url_for('forgot_pin') }}"
+                       class="text-decoration-none">
+
+                        Forgot PIN?
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="card-footer bg-light">
+
+                <div class="d-grid gap-2">
+
+                    <a href="{{ url_for('register') }}"
+                       class="btn btn-success">
+
+                        <i class="bi bi-person-plus-fill"></i>
+
+                        Create New Account
+
+                    </a>
+
+                    <a href="{{ url_for('admin') }}"
+                       class="btn btn-outline-dark">
+
+                        <i class="bi bi-shield-lock-fill"></i>
+
+                        Admin Login
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 

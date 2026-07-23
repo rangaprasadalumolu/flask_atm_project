@@ -1,58 +1,76 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}
+Verify PIN
+{% endblock %}
 
 {% block content %}
 
 <div class="row justify-content-center">
 
-    <div class="col-md-5">
+    <div class="col-lg-5 col-md-6">
 
-        <div class="card shadow">
+        <div class="card shadow-lg border-0 rounded-4">
 
-            <div class="card-body">
+            <div class="card-header bg-warning text-dark text-center">
 
-                <h3 class="text-center">
+                <i class="bi bi-shield-lock display-5"></i>
+
+                <h3 class="mt-2">
+
                     Verify PIN
+
                 </h3>
 
-                <p class="text-center text-muted">
-                    Enter your PIN to confirm withdrawal
-                </p>
+            </div>
 
-                <form method="post">
+            <div class="card-body p-4">
 
-                    <label>PIN</label>
+                <form method="POST">
 
-                    <input
-                    type="password"
-                    name="pin"
-                    maxlength="4"
-                    pattern="[0-9]{4}"
-                    class="form-control"
-                    placeholder="Enter 4 Digit PIN"
-                    required>
+                    <div class="mb-4">
 
-                    <br>
+                        <label class="form-label">
 
-                    <button
-                    type="submit"
-                    class="btn btn-warning w-100">
-                    Confirm Withdrawal
-                    </button>
+                            Enter Your 4-Digit PIN
+
+                        </label>
+
+                        <input
+                            type="password"
+                            class="form-control form-control-lg text-center"
+                            maxlength="4"
+                            minlength="4"
+                            name="pin"
+                            required>
+
+                    </div>
+
+                    <div class="d-grid">
+
+                        <button
+                            class="btn btn-warning btn-lg">
+
+                            <i class="bi bi-check-circle"></i>
+
+                            Confirm Withdrawal
+
+                        </button>
+
+                    </div>
 
                 </form>
 
-                <br>
+            </div>
 
-                <p class="text-danger text-center">
-                    {{ msg }}
-                </p>
+            <div class="card-footer text-center">
 
-                <div class="text-center">
-                    <a href="/dashboard"
-                    class="btn btn-secondary">
-                        Cancel
-                    </a>
-                </div>
+                <a href="{{ url_for('withdrawal') }}"
+                   class="btn btn-outline-secondary">
+
+                    Cancel
+
+                </a>
 
             </div>
 

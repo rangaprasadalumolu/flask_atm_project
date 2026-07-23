@@ -1,59 +1,73 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+
+{% block title %}Admin Login{% endblock %}
 
 {% block content %}
 
-<div class="container mt-5">
+<div class="row justify-content-center">
 
-    <div class="row justify-content-center">
+<div class="col-lg-5">
 
-        <div class="col-md-4">
+<div class="card shadow-lg">
 
-            <div class="card shadow">
+<div class="card-header bg-dark text-white text-center">
 
-                <div class="card-body">
+<h2>
 
-                    <h3 class="text-center">
-                        Admin Login
-                    </h3>
+<i class="bi bi-shield-lock-fill"></i>
 
-                    <form method="post">
+Admin Login
 
-                        <input
-                        type="text"
-                        name="username"
-                        placeholder="Username"
-                        class="form-control"
-                        required>
+</h2>
 
-                        <br>
+</div>
 
-                        <input
-                        type="password"
-                        name="password"
-                        placeholder="Password"
-                        class="form-control"
-                        required>
+<div class="card-body">
 
-                        <br>
+<form method="POST">
 
-                        <button
-                        class="btn btn-dark w-100">
-                        Login
-                        </button>
+<div class="mb-3">
 
-                    </form>
+<label>Username</label>
 
-                    <p class="text-danger mt-2">
-                        {{ msg }}
-                    </p>
+<input
+type="text"
+name="username"
+class="form-control"
+required>
 
-                </div>
+</div>
 
-            </div>
+<div class="mb-4">
 
-        </div>
+<label>Password</label>
 
-    </div>
+<input
+type="password"
+name="password"
+class="form-control"
+required>
+
+</div>
+
+<div class="d-grid">
+
+<button
+class="btn btn-dark">
+
+Login
+
+</button>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
 
 </div>
 
